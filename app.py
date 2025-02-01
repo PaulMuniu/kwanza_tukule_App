@@ -14,11 +14,21 @@ data = load_data()
 
 # ---- SIDEBAR ----
 st.sidebar.header("Filter Data")
-category_filter = st.sidebar.multiselect("Select Category", data["ANONYMIZED CATEGORY"].unique(), default=data["ANONYMIZED CATEGORY"].unique())
-business_filter = st.sidebar.multiselect("Select Business", data["ANONYMIZED BUSINESS"].unique(), default=data["ANONYMIZED BUSINESS"].unique())
+
+# Dropdown for Category
+category_filter = st.sidebar.selectbox("Select Category", options=["All Categories"] + list(data["ANONYMIZED CATEGORY"].unique()))
+
+# Dropdown for Business
+business_filter = st.sidebar.selectbox("Select Business", options=["All Businesses"] + list(data["ANONYMIZED BUSINESS"].unique()))
 
 # Apply Filters
-filtered_data = data[(data["ANONYMIZED CATEGORY"].isin(category_filter)) & (data["ANONYMIZED BUSINESS"].isin(business_filter))]
+if category_filter != "All Categories":
+    filtered_data = data[data["ANONYMIZED CATEGORY"] == category_filter]
+else:
+    filtered_data = data
+
+if business_filter != "All Businesses":
+    filtered_data = filtered_data[filtered_data["ANONYMIZED BUSINESS"] == business_filter]
 
 # ---- MAIN DASHBOARD ----
 st.title("📊 Kwanza Tukule Sales Dashboard")
@@ -33,7 +43,7 @@ col1.metric(label="📦 Total Quantity Sold", value=f"{total_quantity:,}")
 col2.metric(label="💰 Total Sales Value", value=f"Ksh {total_value:,.2f}")
 
 # **2. Total Quantity & Sales Value by Category**
-st.subheader("📌 Sales by Category")
+st.subheader("Sales by Category")
 category_summary = filtered_data.groupby('ANONYMIZED CATEGORY').agg(
     total_quantity=('QUANTITY', 'sum'),
     total_value=('VALUE', 'sum')
@@ -44,7 +54,7 @@ fig1 = px.bar(category_summary, x='ANONYMIZED CATEGORY', y=['total_quantity', 't
 st.plotly_chart(fig1, use_container_width=True)
 
 # **3. Top Performing Products**
-st.subheader("🏆 Top Performing Products")
+st.subheader("Top Performing Products")
 top_products = filtered_data.groupby('ANONYMIZED PRODUCT')['VALUE'].sum().reset_index().sort_values(by="VALUE", ascending=False).head(10)
 
 fig2 = px.bar(top_products, x='ANONYMIZED PRODUCT', y='VALUE', title="Top 10 Products by Sales Value", color='VALUE',
@@ -60,7 +70,7 @@ fig3 = px.line(time_series, x='Month-Year', y='VALUE', title="Sales Value Over T
 st.plotly_chart(fig3, use_container_width=True)
 
 # **5. Customer Segmentation**
-st.subheader("🎯 Customer Segmentation")
+st.subheader("Customer Segmentation")
 top_businesses = filtered_data.groupby('ANONYMIZED BUSINESS')['VALUE'].sum().reset_index().sort_values(by="VALUE", ascending=False).head(10)
 
 fig4 = px.pie(top_businesses, names='ANONYMIZED BUSINESS', values='VALUE', title="Top Businesses by Total Sales")
@@ -68,4 +78,4 @@ st.plotly_chart(fig4, use_container_width=True)
 
 # **6. Footer**
 st.markdown("---")
-st.markdown("Developed by **[Your Name]** | Powered by Streamlit & Plotly")
+st.markdown("Developed by **Muniu Paul** | with 💟")
