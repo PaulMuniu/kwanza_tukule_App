@@ -78,4 +78,4 @@ st.plotly_chart(fig4, use_container_width=True)
 
 # **6. Footer**
 st.markdown("---")
-st.markdown("Developed by **Muniu Paul** | with 💟")
+st.markdown("Developed by **Muniu Paul, Data Analyst** | with 💟")
